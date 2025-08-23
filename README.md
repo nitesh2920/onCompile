@@ -12,7 +12,7 @@ A powerful, modern, web-based **code editor and compiler** supporting 10+ progra
 - Smart file extension detection for downloads
 
 ### 💻 Advanced Code Editor
-- Integrated **Monaco Editor** (VS Code-like experience)
+- Integrated **Monaco Editor** 
 - Syntax highlighting, auto-completion, IntelliSense
 - **Light/Dark mode** support
 - Customizable: font size, word wrap, line numbers, etc.
