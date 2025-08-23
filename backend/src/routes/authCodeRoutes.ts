@@ -29,6 +29,11 @@ router.post("/", async (req: Request, res: Response) => {
   }
   const email = sessionClaims.email;
 
+  if (typeof userId !== "string" || typeof email !== "string") {
+    return res.status(400).json({ message: "Invalid auth info" });
+  }
+
+
   await ensureUserExists(userId, email);
 
   const { title, code, language, stdin } = req.body;
@@ -79,7 +84,7 @@ router.delete("/:id", async (req: Request, res: Response) => {
     if (id !== undefined) where.id = id;
     await prisma.code.deleteMany({ where });
     res.json({ message: "Deleted" });
-  } catch (error) {
+  } catch (error:any) {
     res.status(500).json({ error: "Failed to delete code" });
   }
 });
