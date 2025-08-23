@@ -79,8 +79,8 @@ online-code-compiler/
 ### 1. Clone the repo
 
 ```bash
-git clone https://github.com/yourusername/online-code-compiler.git
-cd online-code-compiler
+git clone https://github.com/nitesh2920/oncompile.git
+cd onCompile
 ```
 
 ## 2. Install dependencies
