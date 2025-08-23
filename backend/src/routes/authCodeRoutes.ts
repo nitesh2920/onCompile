@@ -8,7 +8,6 @@ import crypto from "crypto";
 const router = Router();
 
 router.use(requireAuth());
-console.log("idhar hai", requireAuth());
 
 async function ensureUserExists(userId: string, email: string) {
   const existing = await prisma.user.findUnique({ where: { id: userId } });
@@ -21,7 +20,6 @@ async function ensureUserExists(userId: string, email: string) {
 
 router.post("/", async (req: Request, res: Response) => {
   const { userId, sessionClaims } = getAuth(req);
-  console.log("ddd", getAuth(req));
   if (!sessionClaims || !sessionClaims.email) {
     return res
       .status(400)
