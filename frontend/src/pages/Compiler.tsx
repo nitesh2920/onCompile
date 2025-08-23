@@ -336,7 +336,7 @@ export function Compiler() {
                               <Save className="h-4 w-4 mr-2" /> Save
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={handleShare}>
-                              <Share className="h-4 w-4 mr-2" /> Share
+                              <Share2 className="h-4 w-4 mr-2" /> Share
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={handleDownload}>
                               <Download className="h-4 w-4 mr-2" /> Download
