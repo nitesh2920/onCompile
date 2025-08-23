@@ -1,36 +1,65 @@
-// src/components/loaders/CompilerSkeleton.tsx
-import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-export function CompilerSkeleton() {
+export  function CompilerSkeleton() {
   return (
-    <div className="space-y-4 animate-pulse">
-      {/* Toolbar Card */}
-      <Card className="border-primary/20 p-4">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <Skeleton className="h-9 w-32 rounded-md" /> {/* LanguageSelector */}
-            <Skeleton className="h-9 w-24 rounded-md" /> {/* Run button */}
-          </div>
-          <div className="flex items-center gap-2">
-            <Skeleton className="h-9 w-20 rounded-md" /> {/* Share */}
-            <Skeleton className="h-9 w-24 rounded-md" /> {/* Download */}
-            <Skeleton className="h-9 w-20 rounded-md" /> {/* Save */}
+    <div className="mx-auto px-4 py-6 max-w-7xl">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* LEFT */}
+        <div className="space-y-6 lg:col-span-2">
+          <Card className="border-primary/20">
+            <CardHeader className="pb-3">
+              <div className="flex  sm:items-center justify-between sm:gap-4">
+                {/* Language Selector & Run Button */}
+                <div className="flex items-center gap-3">
+                  <Skeleton className="h-9 w-40 rounded-md" />
+                  <Skeleton className="h-9 w-24 rounded-md" />
+                </div>
+
+                {/* Desktop buttons */}
+                <div className="hidden sm:flex items-center gap-2">
+                  <Skeleton className="h-9 w-20 rounded-md" />
+                  <Skeleton className="h-9 w-20 rounded-md" />
+                  <Skeleton className="h-9 w-28 rounded-md" />
+                  <Skeleton className="h-9 w-20 rounded-md" />
+                </div>
+
+                {/* Mobile menu icon */}
+                <div className="sm:hidden flex">
+                  <Skeleton className="h-9 w-9 rounded-md" />
+                </div>
+              </div>
+            </CardHeader>
+          </Card>
+
+          {/* Code Editor Skeleton */}
+          <div className="relative">
+            <Skeleton className="h-[500px] w-full rounded-md" />
           </div>
         </div>
-      </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Code Editor Placeholder */}
-        <Card className="h-[500px]">
-          <Skeleton className="h-full w-full rounded-md" />
-        </Card>
+        {/* RIGHT PANEL */}
+        <div className="space-y-4">
+          {/* Output */}
+          <Card className="border-primary/20">
+            <CardHeader>
+              <CardTitle>Output</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Skeleton className="h-[300px] w-full rounded-lg" />
+            </CardContent>
+          </Card>
 
-        {/* Output Section Placeholder */}
-        <Card className="h-[500px] p-4 space-y-4">
-          <Skeleton className="h-6 w-32" /> {/* Output Title */}
-          <Skeleton className="h-full w-full rounded-md" />
-        </Card>
+          {/* Input (stdin) */}
+          <Card className="border-primary/20">
+            <CardHeader>
+              <CardTitle>Input (stdin)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Skeleton className="h-[120px] w-full rounded-lg" />
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
