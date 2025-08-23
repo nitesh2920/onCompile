@@ -122,7 +122,7 @@ router.get("/shared/:sharedId", async (req: Request, res: Response) => {
       return res.status(404).json({ message: "Code not found or not shared" });
     }
     res.json(code);
-  } catch (error) {
+  } catch (error:any) {
     res.status(500).json({ error: "Failed to fetch shared code" ,detail:error.message});
   }
 });
