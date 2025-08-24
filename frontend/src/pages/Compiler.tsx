@@ -43,7 +43,6 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useCompiler } from "@/context/CompilerContext";
 import { CompilerSkeleton } from "@/components/loaders/CompilerSkeleton";
-import { downloadCodeFile } from "@/lib/downloadUtils";
 
 export function Compiler() {
   const { isSignedIn, getToken } = useAuth();
@@ -260,7 +259,18 @@ const handleDownload = () => {
     return;
   }
 
- downloadCodeFile(title, language, code);
+const date = new Date().toISOString().split("T")[0];
+const fileName = `${title || date + "-code"}.${language}`;
+
+  const blob = new Blob([code], { type: "text/plain" });
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = fileName;
+  document.body.appendChild(a);
+  a.click();
+  window.URL.revokeObjectURL(url);
+  document.body.removeChild(a);
 
   toast({
     title: "Download Started",

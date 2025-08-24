@@ -113,25 +113,28 @@ export const shareCode = async (id: string, token: string): Promise<{ sharedId: 
   });
   return response.data;
 };
-
-export const downloadCode = async (id: string, token: string): Promise<void> => {
+export const downloadCode = async (
+  id: string,
+  token: string
+): Promise<{ blob: Blob; fileName: string }> => {
   const response = await api.get(`/codes/download/${id}`, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    },
-    responseType: 'blob'
+    headers: { Authorization: `Bearer ${token}` },
+    responseType: "blob"
   });
-  
-  const blob = new Blob([response.data], { type: 'text/plain' });
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `code.txt`;
-  document.body.appendChild(a);
-  a.click();
-  window.URL.revokeObjectURL(url);
-  document.body.removeChild(a);
+
+  const contentDisposition = response.headers["content-disposition"];
+  let fileName = "code.txt"; // fallback
+
+  if (contentDisposition) {
+    const match = contentDisposition.match(/filename="?([^"]+)"?/);
+    if (match && match[1]) {
+      fileName = match[1]; // 🔥 This includes extension, e.g., "hello.py"
+    }
+  }
+
+  return { blob: response.data, fileName };
 };
+
 
 export const getUserCodes = async (token: string): Promise<Code[]> => {
   const response = await api.get('/codes', {

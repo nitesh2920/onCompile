@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@clerk/clerk-react";
 import { getUserCodes, deleteCode, shareCode, downloadCode, updateCode, Code } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
-import { downloadCodeFile } from "@/lib/downloadUtils";
 
 // Define action types
 type ActionType = "delete" | "share" | "download" | "update";
@@ -73,36 +72,36 @@ export function useUserCodes() {
     }
   };
 
-const handleDownload = async (id: string) => {
-  setActionLoading(`download-${id}`);
-  try {
-    const token = await getToken();
-    if (token) {
-      const codeToDownload = codes.find((c) => c.id === id);
-      if (!codeToDownload) throw new Error("Code not found");
+// const handleDownload = async (id: string) => {
+//   setActionLoading(`download-${id}`);
+//   try {
+//     const token = await getToken();
+//     if (token) {
+//       const codeToDownload = codes.find((c) => c.id === id);
+//       if (!codeToDownload) throw new Error("Code not found");
 
-      // Directly download from local state
-      downloadCodeFile(
-        codeToDownload.title,
-        codeToDownload.language,
-        codeToDownload.code
-      );
+//       // Directly download from local state
+//       downloadCodeFile(
+//         codeToDownload.title,
+//         codeToDownload.language,
+//         codeToDownload.code
+//       );
 
-      toast({
-        title: "Download Started",
-        description: "Your code file is being downloaded."
-      });
-    }
-  } catch {
-    toast({
-      title: "Error",
-      description: "Failed to download code",
-      variant: "destructive"
-    });
-  } finally {
-    setActionLoading(null);
-  }
-};
+//       toast({
+//         title: "Download Started",
+//         description: "Your code file is being downloaded."
+//       });
+//     }
+//   } catch {
+//     toast({
+//       title: "Error",
+//       description: "Failed to download code",
+//       variant: "destructive"
+//     });
+//   } finally {
+//     setActionLoading(null);
+//   }
+// };
 
 
 
@@ -153,7 +152,7 @@ const handleUpdate = async (id: string, updated: Partial<Code>) => {
     loadCodes,
     handleDelete,
     handleShare,
-    handleDownload,
+    // handleDownload,
     handleUpdate,
   };
 }

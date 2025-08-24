@@ -32,6 +32,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { LanguageSelector } from "@/components/language-selector";
 import { useUserCodes } from "@/hooks/useUserCodes";
 import { Code } from "@/lib/api";
+import { useDownloadCode } from "@/hooks/useDownlaodCode";
+
 
 export function Dashboard() {
   const navigate = useNavigate();
@@ -41,9 +43,10 @@ export function Dashboard() {
     actionLoading,
     handleDelete,
     handleShare,
-    handleDownload,
+    
     handleUpdate,
   } = useUserCodes();
+const { handleDownload } = useDownloadCode();
 
   const [editingCode, setEditingCode] = useState<Code | null>(null);
   const [isopen, setIsOpen] = useState<boolean | null>(false);
