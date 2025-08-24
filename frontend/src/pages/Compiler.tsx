@@ -43,6 +43,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useCompiler } from "@/context/CompilerContext";
 import { CompilerSkeleton } from "@/components/loaders/CompilerSkeleton";
+import { downloadCodeFile } from "@/lib/downloadUtils";
 
 export function Compiler() {
   const { isSignedIn, getToken } = useAuth();
@@ -249,31 +250,23 @@ export function Compiler() {
     }
   };
 
-  const handleDownload = () => {
-    if (!isSignedIn) {
-      toast({
-        title: "Authentication required",
-        description: "To use this you need to signup",
-        variant: "destructive"
-      });
-      return;
-    }
-    const fileName = `code.${language}`;
-    const blob = new Blob([code], { type: "text/plain" });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = fileName;
-    document.body.appendChild(a);
-    a.click();
-    window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
-
+const handleDownload = () => {
+  if (!isSignedIn) {
     toast({
-      title: "Download Started",
-      description: "Your code file is being downloaded."
+      title: "Authentication required",
+      description: "To use this you need to signup",
+      variant: "destructive"
     });
-  };
+    return;
+  }
+
+ downloadCodeFile(title, language, code);
+
+  toast({
+    title: "Download Started",
+    description: "Your code file is being downloaded."
+  });
+};
 
   function cleanOutput(raw?: string): string {
     if (!raw) return "";

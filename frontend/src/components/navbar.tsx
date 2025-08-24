@@ -96,6 +96,7 @@ export function Navbar() {
                       location.pathname === "/dashboard" ? "default" : "ghost"
                     }
                     size="sm"
+                    className="sm:hidden"
                     asChild
                   >
                     <Link

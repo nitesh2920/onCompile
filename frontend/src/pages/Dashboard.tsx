@@ -15,7 +15,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import {
   Dialog,
@@ -24,7 +24,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -42,7 +42,7 @@ export function Dashboard() {
     handleDelete,
     handleShare,
     handleDownload,
-    handleUpdate
+    handleUpdate,
   } = useUserCodes();
 
   const [editingCode, setEditingCode] = useState<Code | null>(null);
@@ -52,7 +52,7 @@ export function Dashboard() {
     title: "",
     code: "",
     language: "",
-    stdin: ""
+    stdin: "",
   });
 
   const handleEdit = (code: Code) => {
@@ -61,7 +61,7 @@ export function Dashboard() {
       title: code.title,
       code: code.code,
       language: code.language,
-      stdin: code.stdin
+      stdin: code.stdin,
     });
   };
 
@@ -73,56 +73,64 @@ export function Dashboard() {
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-6">
-        <div className="flex items-center justify-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin" />
-        </div>
+      <div className="container mx-auto px-4 py-6 flex justify-center items-center h-64">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
     <div className="container mx-auto px-4 py-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">My Codes</h1>
-        <p className="text-muted-foreground">Manage your saved code snippets</p>
+      <div className="mb-8 text-center">
+        <h1 className="text-4xl font-extrabold bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent">
+          My Codes
+        </h1>
+        <p className="text-muted-foreground mt-2">
+          Manage and organize your saved code snippets
+        </p>
       </div>
 
       {codes.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <p className="text-muted-foreground mb-4">No saved codes yet</p>
+        <Card className="border-dashed border-2 shadow-sm">
+          <CardContent className="flex flex-col items-center justify-center py-16">
+            <p className="text-muted-foreground mb-4">
+              You haven’t saved any codes yet.
+            </p>
             <Button onClick={() => navigate("/")}>Start Coding</Button>
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
           {codes.map((code) => (
-            <Card key={code.id}>
+            <Card
+              key={code.id}
+              className="group rounded-2xl border border-muted shadow-sm hover:shadow-lg transition-all"
+            >
               <CardHeader>
-                <CardTitle className="text-lg line-clamp-1">
+                <CardTitle className="text-lg font-semibold truncate">
                   {code.title}
                 </CardTitle>
                 <div className="flex items-center space-x-2 mt-2">
                   <Badge variant="secondary">{code.language}</Badge>
                   {code.isPublic && (
-                    <Badge variant="outline">
-                      <Share className="h-3 w-3 mr-1" /> Shared
+                    <Badge variant="outline" className="flex items-center gap-1">
+                      <Share className="h-3 w-3" /> Shared
                     </Badge>
                   )}
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <div className="bg-muted p-3 rounded-md">
-                    <pre className="text-xs line-clamp-3 font-mono">
+                    <pre className="text-xs line-clamp-3 font-mono text-muted-foreground">
                       {code.code}
                     </pre>
                   </div>
-                  <div className="text-xs text-muted-foreground">
+                  <p className="text-xs text-muted-foreground">
                     Updated {formatDistanceToNow(new Date(code.updatedAt))} ago
-                  </div>
-                  <div className="flex flex-wrap gap-1">
+                  </p>
+
+                  <div className="flex flex-wrap gap-2 mt-2">
                     <Button
                       size="sm"
                       variant="outline"
@@ -145,11 +153,11 @@ export function Dashboard() {
                           <Edit className="h-3 w-3 mr-1" /> Edit
                         </Button>
                       </DialogTrigger>
-                      <DialogContent className="max-w-2xl max-h-[100vh] overflow-y-auto">
+                      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto scrollbar-thin scrollbar-thumb-primary/60 scrollbar-track-muted rounded-xl">
                         <DialogHeader>
                           <DialogTitle>Edit Code</DialogTitle>
                           <DialogDescription>
-                            Update your code snippet
+                            Update your saved snippet
                           </DialogDescription>
                         </DialogHeader>
                         <div className="space-y-4">
@@ -159,7 +167,7 @@ export function Dashboard() {
                             onChange={(e) =>
                               setEditForm((p) => ({
                                 ...p,
-                                title: e.target.value
+                                title: e.target.value,
                               }))
                             }
                           />
@@ -186,15 +194,15 @@ export function Dashboard() {
                             onChange={(e) =>
                               setEditForm((p) => ({
                                 ...p,
-                                stdin: e.target.value
+                                stdin: e.target.value,
                               }))
                             }
                           />
                         </div>
                         <DialogFooter>
                           <Button
-                            onClick={() => {
-                              handleUpdate(code.id, editForm);
+                            onClick={async () => {
+                             await handleUpdate(code.id, editForm);
                               setIsOpen(false);
                             }}
                             disabled={actionLoading === `update-${code.id}`}
@@ -241,7 +249,7 @@ export function Dashboard() {
                           <Trash2 className="h-3 w-3 mr-1" /> Delete
                         </Button>
                       </AlertDialogTrigger>
-                      <AlertDialogContent>
+                      <AlertDialogContent className="rounded-xl">
                         <AlertDialogHeader>
                           <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                           <AlertDialogDescription>
