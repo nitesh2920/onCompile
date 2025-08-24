@@ -6,7 +6,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import {
   Dialog,
@@ -30,7 +30,14 @@ import {
 } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import {
-  Play, Save, Share, Download, Loader2, RotateCcw, Share2, MoreVertical
+  Play,
+  Save,
+  Share,
+  Download,
+  Loader2,
+  RotateCcw,
+  Share2,
+  MoreVertical
 } from "lucide-react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -168,7 +175,7 @@ export function Compiler() {
         description: "To use this you need to signup",
         variant: "destructive"
       });
-      return;
+      return false;
     }
 
     if (!title.trim()) {
@@ -177,7 +184,7 @@ export function Compiler() {
         description: "Please enter a title for your code",
         variant: "destructive"
       });
-      return;
+      return false;
     }
 
     setIsSaving(true);
@@ -189,7 +196,7 @@ export function Compiler() {
           title: "Success",
           description: "Code saved successfully!"
         });
-        setTempTitle("");
+        return true;
       }
     } catch {
       toast({
@@ -197,9 +204,11 @@ export function Compiler() {
         description: "Failed to save code",
         variant: "destructive"
       });
+      return false;
     } finally {
       setIsSaving(false);
     }
+    return false;
   };
 
   const handleShare = async () => {
@@ -288,7 +297,10 @@ export function Compiler() {
                 <CardHeader className="pb-3">
                   <div className="flex sm:items-center justify-between sm:gap-4">
                     <div className="flex items-center gap-3">
-                      <LanguageSelector value={language} onChange={setLanguage} />
+                      <LanguageSelector
+                        value={language}
+                        onChange={setLanguage}
+                      />
                       <Button
                         onClick={handleRun}
                         disabled={isRunning}
@@ -306,14 +318,31 @@ export function Compiler() {
 
                     <div className="flex items-center gap-2">
                       <div className="hidden sm:flex gap-2">
-                        <Button onClick={() => setShowSaveDialog(true)} size="sm" variant="outline">
+                        <Button
+                          onClick={() => setShowSaveDialog(true)}
+                          size="sm"
+                          variant="outline"
+                        >
                           <Save className="h-4 w-4 mr-2" /> Save
                         </Button>
-                        <Button onClick={handleShare} disabled={isSharing} size="sm" variant="outline">
-                          {isSharing ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Share2 className="h-4 w-4 mr-2" />}
+                        <Button
+                          onClick={handleShare}
+                          disabled={isSharing}
+                          size="sm"
+                          variant="outline"
+                        >
+                          {isSharing ? (
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          ) : (
+                            <Share2 className="h-4 w-4 mr-2" />
+                          )}
                           Share
                         </Button>
-                        <Button onClick={handleDownload} size="sm" variant="outline">
+                        <Button
+                          onClick={handleDownload}
+                          size="sm"
+                          variant="outline"
+                        >
                           <Download className="h-4 w-4 mr-2" />
                           Download
                         </Button>
@@ -332,7 +361,9 @@ export function Compiler() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => setShowSaveDialog(true)}>
+                            <DropdownMenuItem
+                              onClick={() => setShowSaveDialog(true)}
+                            >
                               <Save className="h-4 w-4 mr-2" /> Save
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={handleShare}>
@@ -353,7 +384,11 @@ export function Compiler() {
               </Card>
 
               <div className="relative">
-                <CodeEditor value={code} onChange={setCode} language={language} />
+                <CodeEditor
+                  value={code}
+                  onChange={setCode}
+                  language={language}
+                />
               </div>
             </div>
 
@@ -407,7 +442,7 @@ export function Compiler() {
           />
           <DialogFooter>
             <Button
-              onClick={() => {
+              onClick={async () => {
                 if (!tempTitle.trim()) {
                   toast({
                     title: "Missing Title",
@@ -417,12 +452,18 @@ export function Compiler() {
                   return;
                 }
                 setTitle(tempTitle);
-                setShowSaveDialog(false);
-                handleSave();
+
+                const success = await handleSave(); // return true/false from handleSave
+                if (success) {
+                  setShowSaveDialog(false);
+                  setTempTitle("");
+                }
               }}
               disabled={isSaving}
             >
-              {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+              {isSaving ? (
+                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+              ) : null}
               Save
             </Button>
           </DialogFooter>

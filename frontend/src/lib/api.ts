@@ -82,14 +82,20 @@ export const saveCode = async (code: Omit<Code, 'id' | 'createdAt' | 'updatedAt'
   });
   return response.data;
 };
-
-export const updateCode = async (id: string, code: Partial<Code>, token: string): Promise<void> => {
-  await api.put(`/codes/${id}`, code, {
+export const updateCode = async (
+  id: string,
+  code: Partial<Code>,
+  token: string
+): Promise<{ count: number }> => {
+  const res = await api.put(`/codes/${id}`, code, {
     headers: {
-      Authorization: `Bearer ${token}`
-    }
+      Authorization: `Bearer ${token}`,
+    },
   });
+
+  return res.data; // <- now returns { count: number }
 };
+
 
 export const deleteCode = async (id: string, token: string): Promise<void> => {
   await api.delete(`/codes/${id}`, {

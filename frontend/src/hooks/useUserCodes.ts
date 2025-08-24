@@ -87,21 +87,44 @@ export function useUserCodes() {
     }
   };
 
-  const handleUpdate = async (id: string, updated: Partial<Code>) => {
-    setActionLoading(`update-${id}`);
-    try {
-      const token = await getToken();
-      if (token) {
-        await updateCode(id, updated, token);
-        setCodes(codes.map((c) => (c.id === id ? { ...c, ...updated, updatedAt: new Date().toISOString() } : c)));
-        toast({ title: "Success", description: "Code updated successfully" });
+const handleUpdate = async (id: string, updated: Partial<Code>) => {
+  setActionLoading(`update-${id}`);
+  try {
+    const token = await getToken();
+    if (token) {
+      const res = await updateCode(id, updated, token); // { count: 1 }
+
+      if (res.count > 0) {
+        setCodes((prev) =>
+          prev.map((c) =>
+            c.id === id
+              ? { ...c, ...updated, updatedAt: new Date().toISOString() }
+              : c
+          )
+        );
+
+        toast({
+          title: "Success",
+          description: "Code updated successfully",
+        });
+      } else {
+        toast({
+          title: "No changes",
+          description: "No code was updated on the server",
+        });
       }
-    } catch {
-      toast({ title: "Error", description: "Failed to update code", variant: "destructive" });
-    } finally {
-      setActionLoading(null);
     }
-  };
+  } catch {
+    toast({
+      title: "Error",
+      description: "Failed to update code",
+      variant: "destructive",
+    });
+  } finally {
+    setActionLoading(null);
+  }
+};
+
 
   return {
     codes,
