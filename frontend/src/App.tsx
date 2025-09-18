@@ -1,5 +1,4 @@
 import { Toaster } from "@/components/ui/toaster";
-// import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SignedIn } from "@clerk/clerk-react";
 import { Navbar } from "./components/navbar";
@@ -8,9 +7,6 @@ import { Auth } from "./pages/Auth";
 import { Dashboard } from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 import { CompilerProvider } from "./context/CompilerContext"; 
-
-
-// const queryClient = new QueryClient();
 
 const App = () => (
     <>

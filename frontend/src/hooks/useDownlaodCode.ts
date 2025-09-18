@@ -17,7 +17,6 @@ export function useDownloadCode() {
 
       const { blob, fileName } = await downloadCode(id, token);
 
-      // ✅ Trigger file download with correct filename & extension
       const url = window.URL.createObjectURL(blob);
       const anchor = document.createElement("a");
       anchor.href = url;

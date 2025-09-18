@@ -3,12 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu";
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -17,6 +11,13 @@ import {
   DialogTitle
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 
 import { CodeEditor } from "@/components/code-editor";
 import { LanguageSelector } from "@/components/language-selector";
@@ -32,17 +33,30 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Play,
   Save,
-  Share,
+  Share2,
   Download,
   Loader2,
   RotateCcw,
-  Share2,
-  MoreVertical
+  MoreVertical,
+  FileText,
+  Terminal,
+  Settings,
+  PanelLeft,
+  PanelRight,
+  ChevronsUpDown
 } from "lucide-react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useCompiler } from "@/context/CompilerContext";
 import { CompilerSkeleton } from "@/components/loaders/CompilerSkeleton";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useMediaQuery } from "@/hooks/use-media-query";
 
 export function Compiler() {
   const { isSignedIn, getToken } = useAuth();
@@ -50,6 +64,7 @@ export function Compiler() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const clerk = useClerk();
+  const isDesktop = useMediaQuery("(min-width: 1024px)");
 
   const {
     code,
@@ -73,6 +88,9 @@ export function Compiler() {
 
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [tempTitle, setTempTitle] = useState("");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [runClicked, setRunClicked] = useState(false);
 
   const sharedId = searchParams.get("shared");
 
@@ -81,6 +99,13 @@ export function Compiler() {
       loadSharedCode(sharedId);
     }
   }, [sharedId]);
+
+  useEffect(() => {
+    if (runClicked && !isRunning && output && !isDesktop) {
+      setIsDrawerOpen(true);
+      setRunClicked(false);
+    }
+  }, [runClicked, isRunning, output, isDesktop]);
 
   const loadSharedCode = async (sharedId: string) => {
     try {
@@ -112,6 +137,7 @@ export function Compiler() {
       return;
     }
 
+    setRunClicked(true);
     setIsRunning(true);
     setOutput("Running...");
 
@@ -249,229 +275,239 @@ export function Compiler() {
     }
   };
 
-const handleDownload = () => {
-  if (!isSignedIn) {
+  const handleDownload = () => {
+    if (!isSignedIn) {
+      toast({
+        title: "Authentication required",
+        description: "To use this you need to signup",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const date = new Date().toISOString().split("T")[0];
+    const fileName = `${title || date + "-code"}.${language}`;
+
+    const blob = new Blob([code], { type: "text/plain" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+
     toast({
-      title: "Authentication required",
-      description: "To use this you need to signup",
-      variant: "destructive"
+      title: "Download Started",
+      description: "Your code file is being downloaded."
     });
-    return;
-  }
-
-const date = new Date().toISOString().split("T")[0];
-const fileName = `${title || date + "-code"}.${language}`;
-
-  const blob = new Blob([code], { type: "text/plain" });
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = fileName;
-  document.body.appendChild(a);
-  a.click();
-  window.URL.revokeObjectURL(url);
-  document.body.removeChild(a);
-
-  toast({
-    title: "Download Started",
-    description: "Your code file is being downloaded."
-  });
-};
+  };
 
   function cleanOutput(raw?: string): string {
     if (!raw) return "";
     let cleaned = raw.trim();
     if (cleaned.startsWith("[1]")) {
-      cleaned = cleaned.replace(/^\[1\]\s*"?|"?$/g, "");
+      cleaned = cleaned.replace(/^\\\\[1\\\\]\\s*"?|"?$/g, "");
     }
     return cleaned;
   }
 
+  const renderSidebarContent = () => (
+    <div className="flex-1 flex flex-col p-2 gap-2 h-full">
+      <Card className="flex-1 flex flex-col">
+        <CardHeader className="flex-row items-center justify-between p-2">
+          <div className="flex items-center gap-2">
+            <Terminal className="h-5 w-5" />
+            <CardTitle className="text-base">Output</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="flex-1 p-0">
+          <pre className="bg-background text-foreground p-4 rounded-lg h-full overflow-auto text-sm">
+            {output ||
+              (isRunning
+                ? "Running your code..."
+                : "Click 'Run Code' to see output here...")}
+          </pre>
+        </CardContent>
+      </Card>
+      <Card className="flex-1 flex flex-col">
+        <CardHeader className="flex-row items-center justify-between p-2">
+          <div className="flex items-center gap-2">
+            <FileText className="h-5 w-5" />
+            <CardTitle className="text-base">Input (stdin)</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="flex-1 p-0">
+          <Textarea
+            value={stdin}
+            onChange={(e) => setStdin(e.target.value)}
+            className="font-mono h-full resize-none border-0"
+          />
+        </CardContent>
+      </Card>
+    </div>
+  );
+
   return (
-    <div className="space-y-4">
-      {!clerk.loaded ? (
-        <CompilerSkeleton />
-      ) : (
-        <div className="mx-auto px-4 py-6 max-w-7xl">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* LEFT */}
-            <div className="space-y-6 lg:col-span-2">
-              <Card className="border-primary/20">
-                <CardHeader className="pb-3">
-                  <div className="flex sm:items-center justify-between sm:gap-4">
-                    <div className="flex items-center gap-3">
-                      <LanguageSelector
-                        value={language}
-                        onChange={setLanguage}
-                      />
+    <TooltipProvider>
+      <div className="h-[calc(100vh-3.5rem)] grid grid-cols-1 lg:grid-cols-[1fr_auto]">
+        {!clerk.loaded ? (
+          <CompilerSkeleton />
+        ) : (
+          <>
+            <main className="flex flex-col h-full">
+              <div className="flex items-center justify-between p-2 bg-background border-b">
+                <div className="flex items-center gap-2">
+                  <LanguageSelector
+                    value={language}
+                    onChange={setLanguage}
+                  />
+                  <Button
+                    onClick={handleRun}
+                    disabled={isRunning}
+                    size="sm"
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    {isRunning ? (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <Play className="h-4 w-4 mr-2" />
+                    )}
+                    Run
+                  </Button>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
                       <Button
-                        onClick={handleRun}
-                        disabled={isRunning}
-                        size="sm"
-                        className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800"
+                        onClick={() => setShowSaveDialog(true)}
+                        size="icon"
+                        variant="ghost"
                       >
-                        {isRunning ? (
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        ) : (
-                          <Play className="h-4 w-4 mr-2" />
-                        )}
-                        Run Code
+                        <Save className="h-4 w-4" />
                       </Button>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <div className="hidden sm:flex gap-2">
-                        <Button
-                          onClick={() => setShowSaveDialog(true)}
-                          size="sm"
-                          variant="outline"
-                        >
-                          <Save className="h-4 w-4 mr-2" /> Save
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Save Code</p>
+                    </TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        onClick={handleShare}
+                        disabled={isSharing}
+                        size="icon"
+                        variant="ghost"
+                      >
+                        {isSharing ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Share2 className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Share Code</p>
+                    </TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        onClick={handleDownload}
+                        size="icon"
+                        variant="ghost"
+                      >
+                        <Download className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Download Code</p>
+                    </TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button onClick={resetCode} size="icon" variant="ghost">
+                        <RotateCcw className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Reset Code</p>
+                    </TooltipContent>
+                  </Tooltip>
+                  {!isDesktop && (
+                    <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+                      <DrawerTrigger asChild>
+                        <Button size="icon" variant="ghost">
+                          <ChevronsUpDown className="h-4 w-4" />
                         </Button>
-                        <Button
-                          onClick={handleShare}
-                          disabled={isSharing}
-                          size="sm"
-                          variant="outline"
-                        >
-                          {isSharing ? (
-                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                          ) : (
-                            <Share2 className="h-4 w-4 mr-2" />
-                          )}
-                          Share
-                        </Button>
-                        <Button
-                          onClick={handleDownload}
-                          size="sm"
-                          variant="outline"
-                        >
-                          <Download className="h-4 w-4 mr-2" />
-                          Download
-                        </Button>
-                        <Button onClick={resetCode} size="sm" variant="outline">
-                          <RotateCcw className="h-4 w-4 mr-2" />
-                          Reset
-                        </Button>
-                      </div>
-
-                      {/* Mobile */}
-                      <div className="sm:hidden flex">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="sm">
-                              <MoreVertical className="h-5 w-5" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                              onClick={() => setShowSaveDialog(true)}
-                            >
-                              <Save className="h-4 w-4 mr-2" /> Save
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={handleShare}>
-                              <Share2 className="h-4 w-4 mr-2" /> Share
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={handleDownload}>
-                              <Download className="h-4 w-4 mr-2" /> Download
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={resetCode}>
-                              <RotateCcw className="h-4 w-4 mr-2" /> Reset
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    </div>
-                  </div>
-                </CardHeader>
-              </Card>
-
-              <div className="relative">
+                      </DrawerTrigger>
+                      <DrawerContent className="h-[60vh]">
+                        {renderSidebarContent()}
+                      </DrawerContent>
+                    </Drawer>
+                  )}
+                </div>
+              </div>
+              <div className="flex-grow relative">
                 <CodeEditor
-                  value={code}
-                  onChange={setCode}
-                  language={language}
+                  height="100%"
                 />
               </div>
-            </div>
+            </main>
 
-            {/* RIGHT */}
-            <div className="space-y-4">
-              <Card className="border-primary/20">
-                <CardHeader>
-                  <CardTitle>Output</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <pre className="bg-slate-950 text-green-400 p-4 rounded-lg min-h-[300px] max-h-[400px] overflow-auto lg:overflow-hidden">
-                    {output ||
-                      (isRunning
-                        ? "Running your code..."
-                        : "Click 'Run Code' to see output here...")}
-                  </pre>
-                </CardContent>
-              </Card>
+            {isDesktop && (
+              <aside
+                className={`flex-col w-full lg:w-[350px] border-l bg-background transition-all duration-300 ${ isSidebarOpen ? "flex" : "hidden"}`}>
+                {renderSidebarContent()}
+              </aside>
+            )}
+          </>
+        )}
 
-              <Card className="border-primary/20">
-                <CardHeader>
-                  <CardTitle>Input (stdin)</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Textarea
-                    value={stdin}
-                    onChange={(e) => setStdin(e.target.value)}
-                    rows={4}
-                    className="font-mono"
-                  />
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </div>
-      )}
+        <Dialog open={showSaveDialog} onOpenChange={setShowSaveDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Enter a title to save your code</DialogTitle>
+              <DialogDescription>
+                This title will help you identify your saved code snippet.
+              </DialogDescription>
+            </DialogHeader>
+            <Input
+              placeholder="e.g. Bubble Sort in Python"
+              value={tempTitle}
+              onChange={(e) => setTempTitle(e.target.value)}
+            />
+            <DialogFooter>
+              <Button
+                onClick={async () => {
+                  if (!tempTitle.trim()) {
+                    toast({
+                      title: "Missing Title",
+                      description: "Please enter a title before saving.",
+                      variant: "destructive"
+                    });
+                    return;
+                  }
+                  setTitle(tempTitle);
 
-      {/* Save Dialog */}
-      <Dialog open={showSaveDialog} onOpenChange={setShowSaveDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Enter a title to save your code</DialogTitle>
-            <DialogDescription>
-              This title will help you identify your saved code snippet.
-            </DialogDescription>
-          </DialogHeader>
-          <Input
-            placeholder="e.g. Bubble Sort in Python"
-            value={tempTitle}
-            onChange={(e) => setTempTitle(e.target.value)}
-          />
-          <DialogFooter>
-            <Button
-              onClick={async () => {
-                if (!tempTitle.trim()) {
-                  toast({
-                    title: "Missing Title",
-                    description: "Please enter a title before saving.",
-                    variant: "destructive"
-                  });
-                  return;
-                }
-                setTitle(tempTitle);
-
-                const success = await handleSave(); // return true/false from handleSave
-                if (success) {
-                  setShowSaveDialog(false);
-                  setTempTitle("");
-                }
-              }}
-              disabled={isSaving}
-            >
-              {isSaving ? (
-                <Loader2 className="w-4 h-4 animate-spin mr-2" />
-              ) : null}
-              Save
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
+                  const success = await handleSave();
+                  if (success) {
+                    setShowSaveDialog(false);
+                    setTempTitle("");
+                  }
+                }}
+                disabled={isSaving}
+              >
+                {isSaving ? (
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                ) : null}
+                Save
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </TooltipProvider>
   );
 }

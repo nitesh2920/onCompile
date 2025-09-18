@@ -1,6 +1,5 @@
 import { Editor } from "@monaco-editor/react";
 import { useTheme } from "@/components/theme-provider";
-import { Card } from "@/components/ui/card";
 import { useCompiler } from "@/context/CompilerContext";
 
 interface CodeEditorProps {
@@ -19,7 +18,7 @@ export function CodeEditor({
   value,
   onChange,
   language,
-  height = "500px",
+  height = "100%",
 }: CodeEditorProps) {
   const { theme } = useTheme();
   const compiler = useCompiler();
@@ -34,34 +33,35 @@ export function CodeEditor({
   };
 
   return (
-    <Card className="overflow-hidden">
-      <Editor
-        height={height}
-        language={finalLanguage}
-        value={finalValue}
-        onChange={handleEditorChange}
-        theme={theme === "dark" ? "vs-dark" : "light"}
-        options={{
-          minimap: { enabled: false },
-          fontSize: 16,
-          scrollBeyondLastLine: false,
-          automaticLayout: true,
-          tabSize: 2,
-          wordWrap: "on",
-          fontFamily:
-            "'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace",
-          fontLigatures: true,
-          lineNumbers: "on",
-          renderLineHighlight: "gutter",
-          selectOnLineNumbers: true,
-          smoothScrolling: true,
-          cursorStyle: "line",
-          cursorBlinking: "smooth",
-          formatOnType: true,
-          formatOnPaste: true,
-          suggestOnTriggerCharacters: true,
-        }}
-      />
-    </Card>
+    <Editor
+      height={height}
+      language={finalLanguage}
+      value={finalValue}
+      onChange={handleEditorChange}
+      theme={theme === "dark" ? "vs-dark" : "light"}
+      options={{
+        minimap: { enabled: false },
+        fontSize: 16,
+        scrollBeyondLastLine: false,
+        automaticLayout: true,
+        tabSize: 2,
+        wordWrap: "on",
+        fontFamily:
+          "'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace",
+        fontLigatures: true,
+        lineNumbers: "on",
+        renderLineHighlight: "none",
+        selectOnLineNumbers: true,
+        smoothScrolling: true,
+        cursorStyle: "line",
+        cursorBlinking: "smooth",
+        formatOnType: true,
+        formatOnPaste: true,
+        suggestOnTriggerCharacters: true,
+        padding: {
+          top: 10,
+        }
+      }}
+    />
   );
 }

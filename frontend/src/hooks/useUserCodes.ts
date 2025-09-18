@@ -3,9 +3,6 @@ import { useAuth } from "@clerk/clerk-react";
 import { getUserCodes, deleteCode, shareCode, downloadCode, updateCode, Code } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 
-// Define action types
-type ActionType = "delete" | "share" | "download" | "update";
-
 export function useUserCodes() {
   const { getToken } = useAuth();
   const { toast } = useToast();
