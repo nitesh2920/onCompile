@@ -1,6 +1,6 @@
 # OnCompile: Online Code Compiler & Editor
 
-A powerful, modern, web-based **code editor and compiler** supporting 10+ programming languages, real-time execution, and user authentication — all in one sleek monorepo.
+A powerful, modern, web-based **code editor and compiler** supporting 10+ programming languages, real-time execution, and user authentication all in one sleek monorepo.
 
 ---
 
